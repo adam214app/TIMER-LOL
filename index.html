@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIMER AD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #101a33 0%, #0a0f1f 45%, #060915 80%);
+      --card: rgba(255, 255, 255, 0.05);
+      --stroke: rgba(255, 255, 255, 0.08);
+      --accent: #ff7a18;
+      --accent-2: #2dd4bf;
+      --accent-3: #7c5dff;
+      --text: #e7edf5;
+      --muted: #9fb1d0;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', 'Space Grotesk', system-ui, sans-serif;
+      padding: 32px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      width: 480px;
+      height: 480px;
+      filter: blur(120px);
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+    body::before {
+      background: radial-gradient(circle, rgba(255, 122, 24, 0.9), transparent 55%);
+      top: -120px;
+      right: -120px;
+      animation: float 12s ease-in-out infinite;
+    }
+    body::after {
+      background: radial-gradient(circle, rgba(45, 212, 191, 0.8), transparent 55%);
+      bottom: -140px;
+      left: -120px;
+      animation: float 14s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0% { transform: translate3d(0,0,0); }
+      50% { transform: translate3d(20px, -12px, 0); }
+      100% { transform: translate3d(0,0,0); }
+    }
+
+    .wrap {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: 24px;
+      grid-template-columns: 1fr;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      background: linear-gradient(120deg, rgba(255, 122, 24, 0.18), rgba(45, 212, 191, 0.2));
+      border: 1px solid var(--stroke);
+      padding: 20px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    @media (max-width: 820px) {
+      body { padding: 20px; }
+      header { grid-template-columns: 1fr; }
+      main { grid-template-columns: 1fr; }
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.3px;
+    }
+
+    header p { margin: 6px 0 0; color: var(--muted); }
+
+    header .stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: rgba(12, 19, 36, 0.45);
+      border: 1px solid var(--stroke);
+      padding: 12px 14px;
+      border-radius: 12px;
+      min-width: 150px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .pill strong { display: block; color: var(--accent); font-size: 14px; margin-bottom: 4px; }
+    .pill span { color: var(--text); font-size: 15px; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255, 122, 24, 0.04), rgba(124, 93, 255, 0.05));
+      pointer-events: none;
+    }
+
+    .card > * { position: relative; z-index: 1; }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .muted { color: var(--muted); margin: 0 0 20px; }
+
+    .timer-block {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .ring {
+      width: 210px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08), transparent 45%),
+        conic-gradient(var(--accent) calc(var(--progress) * 1deg), rgba(255,255,255,0.08) 0deg);
+      display: grid;
+      place-items: center;
+      position: relative;
+      box-shadow: inset 0 0 0 12px rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.35);
+    }
+
+    .ring::after {
+      content: '';
+      position: absolute;
+      width: 75%;
+      height: 75%;
+      background: rgba(12, 19, 36, 0.8);
+      border-radius: 50%;
+      border: 1px solid var(--stroke);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    }
+
+    .time-big {
+      position: relative;
+      z-index: 1;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button, input[type="text"] {
+      border: none;
+      outline: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: 0.2s ease;
+    }
+
+    input[type="text"] {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      min-width: 180px;
+    }
+
+    button.primary {
+      background: linear-gradient(120deg, #ff7a18, #ffb547);
+      color: #0c1324;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(255, 122, 24, 0.35);
+      cursor: pointer;
+    }
+
+    button.ghost {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .info-tile {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--stroke);
+      border-radius: 14px;
+      padding: 12px 14px;
+      min-height: 78px;
+    }
+
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(45, 212, 191, 0.12);
+      color: var(--accent-2);
+      border-radius: 999px;
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      font-weight: 700;
+    }
+
+    .leaderboard ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .leaderboard li {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .leaderboard .me { border-color: rgba(255, 122, 24, 0.5); box-shadow: 0 10px 20px rgba(255, 122, 24, 0.18); }
+    .leaderboard li::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,122,24,0.08), rgba(124,93,255,0.05));
+      opacity: 0;
+      transition: 0.2s ease;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    .leaderboard li:hover::after { opacity: 1; }
+    .leaderboard strong { color: var(--text); }
+    .leaderboard .hours { color: var(--muted); font-size: 14px; }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tip { margin-top: 12px; color: var(--muted); font-size: 13px; }
+
+    .progress-shell {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-shell .labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff7a18, #ffb547, #2dd4bf);
+      border-radius: 20px;
+      box-shadow: 0 8px 18px rgba(255,122,24,0.25);
+      transition: width 0.4s ease;
+    }
+
+    .medal {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.12));
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      line-height: 26px;
+      color: #ffd166;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .rank-1 .medal { background: linear-gradient(145deg, #ffcc70, #ff8a00); color: #0c1324; }
+    .rank-2 .medal { background: linear-gradient(145deg, #c9d6ff, #e2ebf0); color: #0c1324; }
+    .rank-3 .medal { background: linear-gradient(145deg, #f6d365, #fda085); color: #0c1324; }
+
+    /* المهام والمتجر والسجل */
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .task-list { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+    .task-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+    }
+    .task-item input { width: 18px; height: 18px; }
+    .task-progress {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .task-progress div {
+      height: 100%;
+      background: linear-gradient(90deg, #2dd4bf, #7c5dff);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .store-item {
+      padding: 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      display: grid;
+      gap: 8px;
+    }
+    .swatch {
+      width: 100%;
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: linear-gradient(120deg, #ff7a18, #ffb547, #2dd4bf);
+    }
+    .store-item button { width: 100%; }
+
+    .wide { grid-column: 1 / -1; }
+    .log-bars { display: grid; grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); gap: 8px; align-items: end; }
+    .log-bar {
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px 8px 4px 4px;
+      position: relative;
+      min-height: 30px;
+    }
+    .log-bar span {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .stat-line { display: grid; grid-template-columns: 1fr auto; gap: 6px; margin: 6px 0; color: var(--muted); }
+
+    /* تفاعلات صغيرة */
+    .toast-stack {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      display: grid;
+      gap: 10px;
+      z-index: 5;
+    }
+    .toast {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toast-in 0.25s ease, toast-out 0.4s ease 3s forwards;
+    }
+    @keyframes toast-in { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes toast-out { to { transform: translateY(8px); opacity: 0; } }
+
+    .burst {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+      animation: burst-fade 0.9s ease forwards;
+    }
+    .burst span {
+      position: absolute;
+      font-size: 20px;
+      animation: float-up 0.9s ease forwards;
+    }
+    @keyframes float-up {
+      to { transform: translateY(-120px) scale(0.8); opacity: 0; }
+    }
+    @keyframes burst-fade { to { opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>بيناتك يا خيبة امك </h1>
+        <p>شغل العداد، اجمع الساعات، وكل ساعة جديدة نعطيك لقب أعلى.</p>
+      </div>
+      <div class="stats">
+        <div class="pill"><strong>أسمك  </strong><span id="active-name">—</span></div>
+        <div class="pill"><strong>إجمالي الساعات</strong><span id="total-hours">0:00:00</span></div>
+        <div class="pill"><strong>أقرب لقب</strong><span id="next-title">—</span></div>
+        <div class="pill"><strong>النقاط</strong><span id="points-balance">0</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>العداد </h2>
+        <p class="muted">ابدأ جلسة المذاكرة وشاهد تقدمك نحو اللقب التالي.</p>
+
+        <div class="controls" style="margin-bottom:14px;">
+          <input type="text" id="name-input" placeholder="اكتب اسمك" aria-label="اسمك">
+          <button class="ghost" id="save-name">تعيين الاسم</button>
+          <button class="primary" id="start-stop">بدء</button>
+          <button class="ghost" id="reset-session">تصفير جلسة اليوم</button>
+        </div>
+
+        <div class="timer-block">
+          <div class="ring" id="ring" style="--progress: 0;">
+            <div class="time-big" id="session-time">00:00:00</div>
+          </div>
+          <div>
+            <div class="title-badge" id="title-badge">لا لقب بعد</div>
+            <div class="tag" id="custom-title-display" style="margin-top:6px; display:inline-block;">لا لقب مميز</div>
+            <div class="info-grid">
+              <div class="info-tile">
+                <strong>إجمالي الوقت</strong>
+                <div id="total-time">00:00:00</div>
+              </div>
+              <div class="info-tile">
+                <strong>الوقت حتى اللقب التالي</strong>
+                <div id="time-to-next">—</div>
+              </div>
+              <div class="info-tile">
+                <strong>الجلسة الحالية</strong>
+                <div id="session-label" class="tag">متوقفة</div>
+              </div>
+            </div>
+            <div class="progress-shell">
+              <div class="labels"><span>التقدم داخل الساعة الحالية</span><span id="progress-label">0%</span></div>
+              <div class="progress-bar"><div class="fill" id="next-bar"></div></div>
+            </div>
+            <p class="tip">تُضاف الثواني تلقائيًا للمتصدرين أثناء تشغيل العداد. كل ساعة جديدة = لقب جديد.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card leaderboard">
+        <h2>لوحة المتصدرين</h2>
+        <p class="muted">ترتيب حسب إجمالي الساعات. اسمك يظهر بإطار مميز.</p>
+        <ul id="leader-list"></ul>
+      </section>
+      <section class="card">
+        <h2>المهام اليومية</h2>
+        <p class="muted">أكمل المهام لتحصل نقاطًا إضافية تنفقها في المتجر.</p>
+        <ul class="task-list" id="task-list"></ul>
+      </section>
+
+      <section class="card">
+        <h2>المتجر</h2>
+        <p class="muted">استبدل النقاط بالألوان والأيقونات للحلقة والبطاقات.</p>
+        <div class="store-grid" id="store-grid"></div>
+        <h3 style="margin-top:16px;">ألقاب مميزة</h3>
+        <p class="muted" id="title-rotation">—</p>
+        <div class="store-grid" id="title-offers"></div>
+        <p class="muted" style="margin-top:10px;">ألقابك المملوكة:</p>
+        <div id="owned-titles" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </section>
+
+      <section class="card wide">
+        <h2>السجل والإحصاءات</h2>
+        <div class="grid-two">
+          <div>
+            <div class="stat-line"><span>أفضل يوم</span><span id="best-day">—</span></div>
+            <div class="stat-line"><span>أفضل ساعة</span><span id="best-hour">—</span></div>
+            <div class="stat-line"><span>سلسلة متتالية</span><span id="streak">0</span></div>
+            <div class="stat-line"><span>النقاط المجمعة</span><span id="points-total">0</span></div>
+          </div>
+          <div>
+            <div class="log-bars" id="log-bars"></div>
+          </div>
+        </div>
+        <div class="controls" style="margin-top:12px;">
+          <button class="ghost" id="export-json">تصدير JSON</button>
+          <button class="ghost" id="import-json">استيراد JSON</button>
+          <input type="file" id="import-file" accept="application/json" style="display:none;">
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <div id="auth-layer" style="position:fixed;inset:0;background:rgba(4,6,12,0.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:10;">
+    <div style="width:min(420px,90%);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:22px;box-shadow:0 18px 40px rgba(0,0,0,0.45);">
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <button id="auth-mode-login" class="ghost" style="flex:1;border:1px solid var(--stroke);">تسجيل الدخول</button>
+        <button id="auth-mode-signup" class="ghost" style="flex:1;border:1px solid var(--stroke);opacity:0.7;">إنشاء حساب</button>
+      </div>
+      <h2 id="auth-title" style="margin:0 0 6px;">تسجيل الدخول</h2>
+      <p id="auth-desc" style="margin:0 0 14px;color:var(--muted);">اكتب اسم مستخدم وكلمة سر للدخول.</p>
+      <div style="display:grid;gap:10px;">
+        <input id="auth-username" type="text" placeholder="اسم المستخدم" style="padding:12px 14px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,0.08);color:var(--text);">
+        <input id="auth-password" type="password" placeholder="كلمة السر" style="padding:12px 14px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,0.08);color:var(--text);">
+        <button id="auth-submit" class="primary" style="width:100%;">دخول</button>
+        <div id="auth-msg" style="color:var(--muted);font-size:13px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'study-leaderboard-v1'; // لم يعد أساسي لكنه يُترك للتوافق
+    const ACCOUNT_KEY = 'study-accounts-v1';
+    let accounts = [];
+    let state = {
+      people: [],
+      active: null,
+      sessionSeconds: 0,
+      running: false,
+      lastTick: null,
+      accountId: null,
+    };
+
+    const adjectives = ['المبتدئ', 'المستكشف', 'المثابر', 'المحترف', 'النخبة', 'الأسطورة'];
+
+    const el = {
+      nameInput: document.getElementById('name-input'),
+      saveName: document.getElementById('save-name'),
+      startStop: document.getElementById('start-stop'),
+      resetSession: document.getElementById('reset-session'),
+      sessionTime: document.getElementById('session-time'),
+      totalTime: document.getElementById('total-time'),
+      totalHours: document.getElementById('total-hours'),
+      timeToNext: document.getElementById('time-to-next'),
+      sessionLabel: document.getElementById('session-label'),
+      ring: document.getElementById('ring'),
+      leaderList: document.getElementById('leader-list'),
+      titleBadge: document.getElementById('title-badge'),
+      customTitle: document.getElementById('custom-title-display'),
+      activeName: document.getElementById('active-name'),
+      nextTitle: document.getElementById('next-title'),
+      nextBar: document.getElementById('next-bar'),
+      progressLabel: document.getElementById('progress-label'),
+      toastStack: document.getElementById('toast-stack'),
+      pointsBalance: document.getElementById('points-balance'),
+      taskList: document.getElementById('task-list'),
+      storeGrid: document.getElementById('store-grid'),
+      titleOffers: document.getElementById('title-offers'),
+      titleRotation: document.getElementById('title-rotation'),
+      ownedTitles: document.getElementById('owned-titles'),
+      bestDay: document.getElementById('best-day'),
+      bestHour: document.getElementById('best-hour'),
+      streak: document.getElementById('streak'),
+      pointsTotal: document.getElementById('points-total'),
+      logBars: document.getElementById('log-bars'),
+      exportJson: document.getElementById('export-json'),
+      importJson: document.getElementById('import-json'),
+      importFile: document.getElementById('import-file'),
+      authLayer: document.getElementById('auth-layer'),
+      authUser: document.getElementById('auth-username'),
+      authPass: document.getElementById('auth-password'),
+      authSubmit: document.getElementById('auth-submit'),
+      authMsg: document.getElementById('auth-msg'),
+      authModeLogin: document.getElementById('auth-mode-login'),
+      authModeSignup: document.getElementById('auth-mode-signup'),
+      authTitle: document.getElementById('auth-title'),
+      authDesc: document.getElementById('auth-desc'),
+    };
+
+    const cheers = ['شغل جامد!', 'استمر يا بطل!', 'حلو التركيز!', '🔥 تقدم ممتاز', 'واصل كده!'];
+    let authMode = 'login';
+
+    function todayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function newDailyTasks() {
+      return [
+        { id: 't1', title: 'مذاكرة 30 دقيقة', target: 1800, progress: 0, done: false, reward: 5 },
+        { id: 't2', title: 'حل تمارين 45 دقيقة', target: 2700, progress: 0, done: false, reward: 7 },
+        { id: 't3', title: 'مراجعة 15 دقيقة', target: 900, progress: 0, done: false, reward: 3 },
+      ];
+    }
+
+    function ensureAccountDefaults(acc) {
+      let changed = false;
+      if (acc.points == null) { acc.points = 0; changed = true; }
+      if (!acc.inventory) { acc.inventory = ['default']; changed = true; }
+      if (!acc.equipped) { acc.equipped = 'default'; changed = true; }
+      if (!acc.log) { acc.log = {}; changed = true; }
+      if (!acc.titlesInventory) { acc.titlesInventory = []; changed = true; }
+      if (acc.titleEquipped === undefined) { acc.titleEquipped = null; changed = true; }
+      if (!acc.titleOffers) { acc.titleOffers = { list: [], last: 0 }; changed = true; }
+      if (acc.titleEquipped && !acc.titlesInventory.includes(acc.titleEquipped)) {
+        acc.titlesInventory.push(acc.titleEquipped);
+        changed = true;
+      }
+      if (!acc.tasksDate || acc.tasksDate !== todayKey()) {
+        acc.tasksDate = todayKey();
+        acc.tasks = newDailyTasks();
+        changed = true;
+      }
+      if (!acc.tasks) { acc.tasks = newDailyTasks(); changed = true; }
+      return changed;
+    }
+
+    function loadAccounts() {
+      const saved = localStorage.getItem(ACCOUNT_KEY);
+      accounts = saved ? JSON.parse(saved) : [];
+      accounts.forEach(ensureAccountDefaults);
+    }
+
+    function saveAccounts() {
+      localStorage.setItem(ACCOUNT_KEY, JSON.stringify(accounts));
+    }
+
+    function loadForAccount(account) {
+      ensureAccountDefaults(account);
+      state.accountId = account.id;
+      state.people = account.people && account.people.length
+        ? account.people
+        : [
+            { id: crypto.randomUUID(), name: 'نور', totalSeconds: 7200 },
+            { id: crypto.randomUUID(), name: 'سامي', totalSeconds: 3600 },
+          ];
+      state.active = state.people[0]?.id || null;
+      state.sessionSeconds = 0;
+      state.running = false;
+      state.lastTick = null;
+      el.authLayer.style.display = 'none';
+      applyTheme(account.equipped || 'default');
+      render();
+    }
+
+    function save() {
+      if (!state.accountId) return;
+      const acc = accounts.find(a => a.id === state.accountId);
+      if (acc) {
+        acc.people = state.people;
+        saveAccounts();
+      }
+    }
+
+    function formatTime(seconds) {
+      const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+      const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+      const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function currentAccount() {
+      return accounts.find(a => a.id === state.accountId) || null;
+    }
+
+    function currentPerson() {
+      return state.people.find(p => p.id === state.active) || null;
+    }
+
+    function setActiveByName(name) {
+      if (!state.accountId) { toast('سجّل الدخول أولاً'); return; }
+      if (!name.trim()) return;
+      let person = state.people.find(p => p.name === name.trim());
+      if (!person) {
+        person = { id: crypto.randomUUID(), name: name.trim(), totalSeconds: 0 };
+        state.people.push(person);
+      }
+      state.active = person.id;
+      state.sessionSeconds = 0;
+      state.running = false;
+      state.lastTick = null;
+      el.startStop.textContent = 'بدء';
+      el.sessionLabel.textContent = 'متوقفة';
+      el.sessionLabel.style.color = 'var(--muted)';
+      save();
+      render();
+    }
+
+    function titleFor(hours) {
+      if (hours <= 0) return 'لا لقب بعد';
+      const word = adjectives[(hours - 1) % adjectives.length];
+      return `${word} • ساعة ${hours}`;
+    }
+
+    function nextTitleText(hours) {
+      const next = hours + 1;
+      const word = adjectives[(next - 1) % adjectives.length];
+      return `${word} • ساعة ${next}`;
+    }
+
+    function addPoints(amount, reason = '') {
+      const acc = currentAccount();
+      if (!acc) return;
+      acc.points = (acc.points || 0) + amount;
+      saveAccounts();
+      if (reason) toast(`+${amount} نقطة • ${reason}`);
+      renderPoints();
+    }
+
+    function renderLeaderboard() {
+      const me = currentPerson();
+      const sorted = [...state.people].sort((a, b) => b.totalSeconds - a.totalSeconds);
+      el.leaderList.innerHTML = sorted.map((p, i) => {
+        const hours = (p.totalSeconds / 3600).toFixed(2);
+        const isMe = me && me.id === p.id;
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+        const medal = i < 3 ? `<span class="medal">${i + 1}</span>` : `<span class="tag">${i + 1}</span>`;
+        return `<li class="${rankClass} ${isMe ? 'me' : ''}">${medal}<div><strong>${p.name}</strong><div class="hours">${hours} ساعة</div></div><div class="tag">${titleFor(Math.floor(p.totalSeconds / 3600))}</div></li>`;
+      }).join('');
+    }
+
+    function render() {
+      const me = currentPerson();
+      const acc = currentAccount();
+      if (acc) {
+        const changed = ensureAccountDefaults(acc);
+        if (changed) saveAccounts();
+      }
+      if (!me || !acc) return;
+      el.activeName.textContent = me.name;
+
+      const totalSeconds = me.totalSeconds;
+      const hours = Math.floor(totalSeconds / 3600);
+      const remainder = totalSeconds % 3600;
+      const toNext = 3600 - remainder;
+
+      el.sessionTime.textContent = formatTime(state.sessionSeconds);
+      el.totalTime.textContent = formatTime(totalSeconds);
+      el.totalHours.textContent = formatTime(totalSeconds);
+      el.titleBadge.textContent = titleFor(hours);
+      el.nextTitle.textContent = nextTitleText(hours);
+      el.timeToNext.textContent = hours >= 0 ? `${Math.floor(toNext / 60)} دقيقة` : '—';
+
+      const progressPct = (remainder / 3600) * 100;
+      el.nextBar.style.width = `${progressPct}%`;
+      el.progressLabel.textContent = `${progressPct.toFixed(0)}%`;
+
+      const progress = Math.min(359, (remainder / 3600) * 360);
+      el.ring.style.setProperty('--progress', progress);
+      renderLeaderboard();
+      renderPoints();
+      renderTasks();
+      renderStore();
+      renderTitleStore();
+      renderLogStats();
+
+      if (state.running) {
+        document.title = `⏱️ ${formatTime(state.sessionSeconds)} | مذاكرة`;
+      } else {
+        document.title = 'عداد المذاكرة مع الألقاب';
+      }
+    }
+
+    // عداد المتجر: نصي ثابت للتجديد التلقائي كل 10 دقائق
+
+    function renderPoints() {
+      const acc = currentAccount();
+      if (!acc) return;
+      const pts = acc.points || 0;
+      el.pointsBalance.textContent = pts;
+      el.pointsTotal.textContent = pts;
+    }
+
+    function renderTasks() {
+      const acc = currentAccount();
+      if (!acc || !acc.tasks) return;
+      el.taskList.innerHTML = acc.tasks.map(t => {
+        const pct = Math.min(100, Math.floor((t.progress / t.target) * 100));
+        const checked = t.done ? 'checked' : '';
+        const disable = 'disabled';
+        return `<li class="task-item"><input type="checkbox" ${checked} ${disable}><div><strong>${t.title}</strong><div class="task-progress"><div style="width:${pct}%"></div></div></div><span class="tag">+${t.reward} ن.</span></li>`;
+      }).join('');
+    }
+
+    const storeItems = [
+      { id: 'default', name: 'الوضع الافتراضي', price: 0, colors: { a: '#ff7a18', b: '#ffb547', c: '#2dd4bf' } },
+      { id: 'mint', name: 'نعناع بارد', price: 20, colors: { a: '#2dd4bf', b: '#0ea5e9', c: '#67e8f9' } },
+      { id: 'violet', name: 'بنفسجي', price: 30, colors: { a: '#8b5cf6', b: '#a855f7', c: '#ec4899' } },
+      { id: 'sunset', name: 'غروب', price: 35, colors: { a: '#fb923c', b: '#f59e0b', c: '#ef4444' } },
+    ];
+
+    const titleSeeds = [
+      'العوطلي','دحيح المدرسة','المخلص','صائد الدرجات','ملك الفلاش كارد','قاهر الواجبات','أسد الامتحان','مخترق المناهج',
+      'المفهرس','راسم الخطط','سيد الملاحظات','صاحب الملخص','مزاج التركيز','قناص الدرجات','صاروخ الحصص','مروض المسائل',
+      'المهندس الذكي','عين الصقر','حارس المواعيد','مفجر الحماس','ملاك التنظيم','السابق بخطوة','راهب التركيز','صاحب القلم',
+      'مدمن المعرفة','المفكر السريع','كاسر التسويف','مستوى الوحش','ملك البوست إت','المراجع الحديدي','سفير الفهم','الأسطورة الأكاديمية',
+      'السهم الصاعد','الكوتش الذاتي','الموازن البارع','صانع الملخصات','راصد الأخطاء','حارس العلامات','مُحلل المنهج','كابتن المجموعة',
+      'منظم الوقت','سيد البومودورو'
+    ];
+    const titlePool = [];
+    while (titlePool.length < 100) {
+      const base = titleSeeds[titlePool.length % titleSeeds.length];
+      const suffix = titlePool.length >= titleSeeds.length ? ` ${titlePool.length + 1}` : '';
+      titlePool.push({ id: `title-${titlePool.length}`, name: `${base}${suffix}` });
+    }
+    const specialPrices = { 'العوطلي': 10, 'دحيح المدرسة': 35, 'المخلص': 20 };
+
+    function applyTheme(itemId) {
+      const item = storeItems.find(i => i.id === itemId) || storeItems[0];
+      const root = document.documentElement;
+      root.style.setProperty('--accent', item.colors.a);
+      root.style.setProperty('--accent-2', item.colors.b);
+      root.style.setProperty('--accent-3', item.colors.c);
+    }
+
+    function renderStore() {
+      const acc = currentAccount();
+      if (!acc) return;
+      el.storeGrid.innerHTML = storeItems.map(it => {
+        const owned = acc.inventory?.includes(it.id);
+        const equipped = acc.equipped === it.id;
+        const action = owned ? (equipped ? 'مفعل' : 'تفعيل') : `شراء (${it.price})`;
+        const btnClass = equipped ? 'ghost' : 'primary';
+        const disabled = equipped ? 'disabled' : '';
+        const grad = `linear-gradient(120deg, ${it.colors.a}, ${it.colors.b}, ${it.colors.c})`;
+        return `<div class="store-item"><div class="swatch" style="background:${grad};"></div><strong>${it.name}</strong><div class="muted">السعر: ${it.price} ن</div><button class="${btnClass}" data-item="${it.id}" ${disabled}>${action}</button></div>`;
+      }).join('');
+      el.storeGrid.querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.item;
+          const acc2 = currentAccount();
+          const item = storeItems.find(i => i.id === id);
+          if (!acc2 || !item) return;
+          const owned = acc2.inventory?.includes(id);
+          if (!owned) {
+            if ((acc2.points || 0) < item.price) { toast('نقاطك غير كافية'); return; }
+            acc2.points -= item.price;
+            acc2.inventory.push(id);
+          }
+          acc2.equipped = id;
+          applyTheme(id);
+          saveAccounts();
+          render();
+          toast(owned ? 'تم التفعيل' : 'تم الشراء والتفعيل');
+        };
+      });
+    }
+
+    function rotateTitleOffers(acc, force = false) {
+      const now = Date.now();
+      if (!force && acc.titleOffers && acc.titleOffers.list?.length && (now - (acc.titleOffers.last || 0) < 600000)) {
+        return;
+      }
+      const pool = titlePool.filter(t => !mustHave.includes(t.name));
+      const offers = [];
+      const mustHave = ['العوطلي', 'دحيح المدرسة', 'المخلص'];
+      mustHave.forEach(name => {
+        const price = specialPrices[name] ?? 15;
+        offers.push({ name, price });
+      });
+      while (offers.length < 5 && pool.length) {
+        const idx = Math.floor(Math.random() * pool.length);
+        const item = pool.splice(idx, 1)[0];
+        const price = specialPrices[item.name] ?? (10 + Math.floor(Math.random() * 31));
+        offers.push({ name: item.name, price });
+      }
+      acc.titleOffers = { list: offers, last: now };
+      saveAccounts();
+    }
+
+    function renderTitleStore() {
+      const acc = currentAccount();
+      if (!acc) return;
+      rotateTitleOffers(acc);
+      const offers = acc.titleOffers?.list || [];
+      const now = Date.now();
+      const nextMs = Math.max(0, 600000 - (now - (acc.titleOffers?.last || 0)));
+      const mins = Math.floor(nextMs / 60000);
+      const secs = Math.floor((nextMs % 60000) / 1000);
+      el.titleRotation.textContent = `يتجدد بعد ${mins}:${secs.toString().padStart(2,'0')}`;
+      el.titleOffers.innerHTML = offers.map(o => {
+        const owned = acc.titlesInventory?.includes(o.name);
+        const equipped = acc.titleEquipped === o.name;
+        const action = owned ? (equipped ? 'مفعل' : 'تفعيل') : `شراء (${o.price})`;
+        const btnClass = equipped ? 'ghost' : 'primary';
+        const disabled = equipped ? 'disabled' : '';
+        return `<div class="store-item"><strong>${o.name}</strong><div class="muted">السعر: ${o.price} ن</div><button class="${btnClass}" data-title="${o.name}" ${disabled}>${action}</button></div>`;
+      }).join('');
+      el.titleOffers.querySelectorAll('button').forEach(btn => {
+        btn.onclick = () => {
+          const name = btn.dataset.title;
+          const offer = offers.find(o => o.name === name);
+          const acc2 = currentAccount();
+          if (!acc2 || !offer) return;
+          const owned = acc2.titlesInventory?.includes(name);
+          if (!owned) {
+            if ((acc2.points || 0) < offer.price) { toast('نقاطك غير كافية'); return; }
+            acc2.points -= offer.price;
+            acc2.titlesInventory.push(name);
+          }
+          acc2.titleEquipped = name;
+          saveAccounts();
+          render();
+          toast(owned ? 'تم التفعيل' : 'تم الشراء + تفعيل');
+        };
+      });
+      el.customTitle.textContent = acc.titleEquipped ? `لقبك: ${acc.titleEquipped}` : 'لا لقب مميز';
+      const owned = acc.titlesInventory || [];
+      el.ownedTitles.innerHTML = owned.length ? owned.map(n => `<span class="tag">${n}</span>`).join('') : '<span class="muted">لا توجد ألقاب بعد</span>';
+    }
+
+    function renderLogStats() {
+      const acc = currentAccount();
+      if (!acc) return;
+      const log = acc.log || {};
+      const entries = Object.entries(log).map(([d, s]) => ({ d, s }));
+      entries.sort((a,b) => a.d.localeCompare(b.d));
+      const last7 = entries.slice(-7);
+      const maxSec = Math.max(1, ...last7.map(e => e.s));
+      el.logBars.innerHTML = last7.map(e => {
+        const h = Math.max(10, Math.round((e.s / maxSec) * 80));
+        const label = e.d.slice(5);
+        return `<div class="log-bar" style="height:${h}px;"><span>${label}</span></div>`;
+      }).join('');
+
+      if (entries.length) {
+        const best = entries.reduce((p,c) => c.s > p.s ? c : p, entries[0]);
+        el.bestDay.textContent = `${best.d} • ${(best.s/3600).toFixed(2)} س`;
+      } else {
+        el.bestDay.textContent = '—';
+      }
+
+      const maxSecPerson = state.people.length ? Math.max(...state.people.map(p => p.totalSeconds)) : 0;
+      el.bestHour.textContent = `${(maxSecPerson / 3600).toFixed(1)} س إجمالي`;
+
+      // streak
+      let streak = 0;
+      let cursor = new Date();
+      for (;;) {
+        const key = cursor.toISOString().slice(0,10);
+        if (log[key] && log[key] > 0) streak++;
+        else break;
+        cursor.setDate(cursor.getDate()-1);
+      }
+      el.streak.textContent = streak;
+      renderPoints();
+    }
+
+    function toast(msg) {
+      const div = document.createElement('div');
+      div.className = 'toast';
+      div.textContent = msg;
+      el.toastStack.appendChild(div);
+      setTimeout(() => div.remove(), 3600);
+    }
+
+    function celebrate(hours) {
+      toast(`مبروك! وصلت ساعة ${hours} 🎉`);
+      const burst = document.createElement('div');
+      burst.className = 'burst';
+      const emojis = ['⭐','🔥','📚','🎯','🏅','🚀'];
+      for (let i = 0; i < 14; i++) {
+        const s = document.createElement('span');
+        s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        s.style.left = `${20 + Math.random()*60}%`;
+        s.style.top = `${40 + Math.random()*20}%`;
+        s.style.color = Math.random() > 0.5 ? '#ffb547' : '#2dd4bf';
+        burst.appendChild(s);
+      }
+      document.body.appendChild(burst);
+      setTimeout(() => burst.remove(), 900);
+    }
+
+    function tick() {
+      if (!state.running) return;
+      const now = Date.now();
+      if (!state.lastTick) { state.lastTick = now; return; }
+      const delta = Math.floor((now - state.lastTick) / 1000);
+      if (delta <= 0) return;
+      state.lastTick = now;
+      state.sessionSeconds += delta;
+      const me = currentPerson();
+      if (me) {
+        const prevHours = Math.floor(me.totalSeconds / 3600);
+        me.totalSeconds += delta;
+        const newHours = Math.floor(me.totalSeconds / 3600);
+        if (newHours > prevHours && newHours > 0) {
+          celebrate(newHours);
+          addPoints(5, 'ساعة جديدة');
+        } else if (delta >= 5 && Math.random() > 0.985) {
+          toast(cheers[Math.floor(Math.random() * cheers.length)]);
+        }
+        const acc = currentAccount();
+        if (acc) {
+          const day = todayKey();
+          acc.log = acc.log || {};
+          acc.log[day] = (acc.log[day] || 0) + delta;
+          if (acc.tasks && acc.tasks.length) {
+            acc.tasks.forEach(t => {
+              if (t.done) return;
+              t.progress += delta;
+              if (t.progress >= t.target) {
+                t.done = true;
+                addPoints(t.reward, 'مهمة يومية');
+              }
+            });
+          }
+        }
+        save();
+      }
+      render();
+    }
+
+    function startTimer() {
+      if (!state.accountId) { toast('سجّل الدخول أولاً'); return; }
+      if (!state.active) return;
+      state.running = true;
+      state.lastTick = Date.now();
+      el.startStop.textContent = 'إيقاف';
+      el.sessionLabel.textContent = 'قيد المذاكرة';
+      el.sessionLabel.style.color = '#2dd4bf';
+    }
+
+    function stopTimer() {
+      state.running = false;
+      el.startStop.textContent = 'بدء';
+      el.sessionLabel.textContent = 'متوقفة';
+      el.sessionLabel.style.color = 'var(--muted)';
+    }
+
+    // عند إغلاق الصفحة بينما العداد يعمل نوقفه ونعلّم أنه غش
+    window.addEventListener('beforeunload', () => {
+      if (state.running) {
+        stopTimer();
+        save();
+        localStorage.setItem('cheater-flag', '1');
+      }
+    });
+
+    // Events
+    el.saveName.addEventListener('click', () => {
+      setActiveByName(el.nameInput.value || 'أنا');
+    });
+
+    el.startStop.addEventListener('click', () => {
+      if (!state.active) {
+        setActiveByName(el.nameInput.value || 'أنا');
+      }
+      state.running ? stopTimer() : startTimer();
+    });
+
+    el.resetSession.addEventListener('click', () => {
+      state.sessionSeconds = 0;
+      render();
+    });
+
+    // كي يعمل بالضغط على Enter
+    el.nameInput.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') setActiveByName(el.nameInput.value || 'أنا');
+    });
+
+    // اختصارات لوحة المفاتيح
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') { e.preventDefault(); state.running ? stopTimer() : startTimer(); }
+      if (e.key && e.key.toLowerCase() === 'r') { state.sessionSeconds = 0; render(); toast('تم تصفير جلسة اليوم'); }
+      if (e.key && e.key.toLowerCase() === 'n') { el.nameInput.focus(); el.nameInput.select(); }
+    });
+
+    // تصدير/استيراد JSON للحساب الحالي
+    function exportAccount() {
+      const acc = currentAccount();
+      if (!acc) { toast('سجّل الدخول أولاً'); return; }
+      const blob = new Blob([JSON.stringify(acc)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `study-account-${acc.user || 'data'}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importAccount(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!data.user || !data.pass) { alert('ملف غير صالح'); return; }
+          ensureAccountDefaults(data);
+          const idx = accounts.findIndex(a => a.user === data.user);
+          if (idx >= 0) accounts[idx] = data; else accounts.push(data);
+          saveAccounts();
+          loadForAccount(data);
+          toast('تم الاستيراد بنجاح');
+        } catch (e) {
+          alert('تعذر قراءة الملف');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    el.exportJson.addEventListener('click', exportAccount);
+    el.importJson.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) importAccount(file);
+      e.target.value = '';
+    });
+
+    // تبديل وضع الدخول/التسجيل
+    function setAuthMode(mode) {
+      authMode = mode;
+      if (mode === 'login') {
+        el.authModeLogin.style.opacity = '1';
+        el.authModeSignup.style.opacity = '0.7';
+        el.authTitle.textContent = 'تسجيل الدخول';
+        el.authDesc.textContent = 'اكتب اسم مستخدم وكلمة سر للدخول.';
+        el.authSubmit.textContent = 'دخول';
+      } else {
+        el.authModeLogin.style.opacity = '0.7';
+        el.authModeSignup.style.opacity = '1';
+        el.authTitle.textContent = 'إنشاء حساب جديد';
+        el.authDesc.textContent = 'اختر اسم مستخدم وكلمة سر لإنشاء حساب جديد.';
+        el.authSubmit.textContent = 'إنشاء';
+      }
+      el.authMsg.textContent = '';
+    }
+
+    // تسجيل دخول/إنشاء حساب
+    function handleAuth() {
+      const u = (el.authUser.value || '').trim();
+      const p = (el.authPass.value || '').trim();
+      if (!u || !p) { el.authMsg.textContent = 'الاسم وكلمة السر مطلوبان'; return; }
+      let acc = accounts.find(a => a.user === u);
+      if (authMode === 'login') {
+        if (!acc) { el.authMsg.textContent = 'انت مش موجود في البيانات يا عبن امك'; return; }
+        if (acc.pass !== p) { el.authMsg.textContent = 'كلمة السر غير صحيحة'; return; }
+        el.authMsg.textContent = '';
+      } else {
+        if (acc) { el.authMsg.textContent = 'الاسم محجوز بالفعل'; return; }
+        acc = { id: crypto.randomUUID(), user: u, pass: p, people: [] };
+        accounts.push(acc);
+        saveAccounts();
+        el.authMsg.textContent = 'تم إنشاء حساب جديد 🎉';
+      }
+      loadForAccount(acc);
+      el.nameInput.value = u;
+      setActiveByName(u);
+      toast('تم تسجيل الدخول');
+    }
+
+    el.authModeLogin.addEventListener('click', () => setAuthMode('login'));
+    el.authModeSignup.addEventListener('click', () => setAuthMode('signup'));
+    el.authSubmit.addEventListener('click', handleAuth);
+    el.authPass.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleAuth(); });
+    el.authUser.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleAuth(); });
+
+    loadAccounts();
+    // إظهار رسالة الغش عند الفتح إذا أُغلق المتصفح أثناء التشغيل
+    if (localStorage.getItem('cheater-flag') === '1') {
+      alert('يا غشاش! أغلقت المتصفح والعداد شغال.');
+      localStorage.removeItem('cheater-flag');
+    }
+    render(); // لن يظهر شيء مفيد قبل تسجيل الدخول لكن يحافظ على القيم الأولية
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
